@@ -20,11 +20,18 @@ def calculate_summary_length(text_length, is_chunk=False):
     # Estimate token count (rough approximation: 4 characters per token)
     estimated_tokens = text_length // 4
     
-    # For chunks, use more conservative lengths
-    if is_chunk:
-        ratio = 0.4  # 40% of input length for chunks
+    # For very short texts, use smaller ratios
+    if estimated_tokens < 100:
+        if is_chunk:
+            ratio = 0.6  # 60% of input length for small chunks
+        else:
+            ratio = 0.7  # 70% of input length for small final summaries
     else:
-        ratio = 0.5  # 50% of input length for final summary
+        # Original ratios for longer texts
+        if is_chunk:
+            ratio = 0.4  # 40% of input length for chunks
+        else:
+            ratio = 0.5  # 50% of input length for final summary
     
     # Calculate target lengths
     max_length = int(estimated_tokens * ratio)
@@ -78,49 +85,29 @@ def summarize_text(text):
     chunk_summaries = []
     
     # Summarize each chunk
-    print("Summarizing chunks...")  # Debug info
     for i, chunk in enumerate(chunks, 1):
         try:
             chunk_min_length, chunk_max_length = calculate_summary_length(len(chunk), is_chunk=True)
             print(f"Processing chunk {i}/{len(chunks)} - Target length: {chunk_min_length}-{chunk_max_length}")
             
-            summary = summarizer(
-                chunk,
-                max_length=chunk_max_length,
-                min_length=chunk_min_length,
-                length_penalty=2.0,
-                num_beams=4,
-                do_sample=False
-            )
+            summary = summarizer(chunk, max_length=chunk_max_length, min_length=chunk_min_length,
+                               length_penalty=2.0, num_beams=4, do_sample=False)
             chunk_summaries.append(summary[0]['summary_text'])
         except Exception as e:
-            print(f"Warning: Error summarizing chunk {i}: {str(e)}")
+            print(f"Error in chunk {i}: {str(e)}")
             continue
     
     # If we have multiple summaries, create a final summary of summaries
     if len(chunk_summaries) > 1:
-        print("\n=== Chunk Summaries ===")
-        for i, chunk_sum in enumerate(chunk_summaries, 1):
-            print(f"\nChunk {i}:\n{chunk_sum}")
-            
-        print("\n=== Creating Final Summary ===")
         combined_summary = " ".join(chunk_summaries)
         try:
             final_min_length, final_max_length = calculate_summary_length(len(combined_summary))
-            print(f"Final summary target length: {final_min_length}-{final_max_length}")
-            
-            final_summary = summarizer(
-                combined_summary,
-                max_length=final_max_length,
-                min_length=final_min_length,
-                length_penalty=2.0,
-                num_beams=4,
-                do_sample=False
-            )
-            print("\n=== Final Summary ===")
+            final_summary = summarizer(combined_summary, max_length=final_max_length,
+                                     min_length=final_min_length, length_penalty=2.0,
+                                     num_beams=4, do_sample=False)
             return final_summary[0]['summary_text']
         except Exception as e:
-            print(f"Warning: Error in final summarization: {str(e)}")
+            print(f"Error in final summary: {str(e)}")
             return "Individual chunk summaries:\n\n" + "\n\n".join(chunk_summaries)
     elif len(chunk_summaries) == 1:
         return chunk_summaries[0]
@@ -128,10 +115,10 @@ def summarize_text(text):
         raise ValueError("No successful summaries were generated")
 
 # Test the function
-try:
+'''try:
     docx_text = read_docx("/Users/jihadgarti/Desktop/research/adaptive learning research/Adaptive Learning Technology.docx")
     print("Document content length:", len(docx_text))
     summary = summarize_text(docx_text)
     print("Summary:", summary)
-except Exception as e:
-    print(f"Error: {e}")
+except Exception as e:  
+    print(f"Error: {e}")'''

@@ -14,9 +14,12 @@ def extract_tables_from_pdf(pdf_path):
             tables.extend(page.extract_tables())
     return tables
 ## Test the functions
+
+"""
 pdf_text = extract_text_from_pdf("cover_letter.pdf")
 print(pdf_text)
 
 pdf_tables = extract_tables_from_pdf("cover_letter.pdf")
 for table in pdf_tables:
     print(table)
+"""

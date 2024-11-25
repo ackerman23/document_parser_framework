@@ -20,10 +20,10 @@ def process_pdf(pdf_path):
     tables = pdf_handler.extract_tables_from_pdf(pdf_path)
     
     return {
-        "text": text,
+        #"text": text,
         "summary": summary,
-        "keywords": keywords,
-        "tables": tables
+        #"keywords": keywords,
+        #"tables": tables
     }
 
 def process_word(docx_path):
@@ -32,9 +32,9 @@ def process_word(docx_path):
     keywords = keyword_extractor.extract_keywords(text)
     
     return {
-        "text": text,
+        #"text": text,
         "summary": summary,
-        "keywords": keywords
+        #"keywords": keywords
     }
     
 ## Test the function

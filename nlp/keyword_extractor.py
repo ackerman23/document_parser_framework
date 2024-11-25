@@ -14,18 +14,8 @@ def extract_keywords(input_text, include_pos=['NOUN', 'PROPN'], min_length=3):
         include_pos: List of spaCy POS tags to include
         min_length: Minimum length of keywords to include
     """
-    # Handle file input if a path is provided
-    if isinstance(input_text, (str, Path)) and Path(input_text).exists():
-        if str(input_text).endswith('.docx'):
-            text = docx2txt.process(input_text)
-        else:
-            with open(input_text, 'r', encoding='utf-8') as file:
-                text = file.read()
-    else:
-        text = input_text
-
     # Process the text
-    doc = nlp(text.lower())
+    doc = nlp(input_text)
     
     # Extract keywords with additional filtering
     keywords = [
@@ -40,6 +30,6 @@ def extract_keywords(input_text, include_pos=['NOUN', 'PROPN'], min_length=3):
     return list(dict.fromkeys(keywords))
 
 ## Test the function
-keywords = extract_keywords("J_CV.docx")
-print(keywords)
+'''keywords = extract_keywords("J_CV.docx")
+print(keywords)'''
 
